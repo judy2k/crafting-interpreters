@@ -2,15 +2,15 @@
 # /// script
 # dependencies = [
 #   "jinja2",
+#   "click"
 # ]
 # ///
 
-import sys
-from argparse import ArgumentParser
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, SupportsIndex
 
-from jinja2 import Environment, DictLoader
+import click
+from jinja2 import Template
 
 RULES = """
     Binary : Expr left, Token operator, Expr right
@@ -19,18 +19,30 @@ RULES = """
     Unary : Token operator, Expr right
 """
 
-expr_template = """
+EXPR_TEMPLATE = """
 package uk.co.judy.lox;
 
 import java.util.List;
 
 abstract class {{base_name}} {
-    {%- for t in types %}
+    interface Visitor<R> {
+        {%- for t in types %}
+        R visit{{t.name}}{{base_name}}({{t.name}} {{base_name | lower}});
+        {%- endfor %}
+    }
+
+    abstract <R> R accept(Visitor<R> visitor);
+    {% for t in types %}
     static class {{t.name}} extends {{base_name}} {
-        {{t.name}}({{t.f_string}}) {
+        {{t.name}}({{t.java_param_list}}) {
             {%- for f in t.fields %}
             this.{{f.name}} = {{f.name}};
             {%- endfor %}
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visit{{t.name}}{{base_name}}(this);
         }
         {% for f in t.fields %}
         final {{f.type}} {{f.name}};
@@ -45,44 +57,52 @@ class Field(NamedTuple):
     type: str
     name: str
 
+    @classmethod
+    def from_str(cls, pair: str) -> "Field":
+        return Field(*ws_split(pair, " ", 1))
+
+    @property
+    def java_def(self):
+        return f"{self.type} {self.name}"
+
 
 class Type(NamedTuple):
     name: str
-    f_string: str
     fields: list[Field]
 
+    @classmethod
+    def from_rule(cls, rule: str) -> "Type":
+        name, f_string = ws_split(rule, ":", 1)
+        return cls(name, [Field.from_str(pair) for pair in ws_split(f_string, ",")])
 
-def parse_rule(rule: str) -> Type:
-    name, f_string = rule.split(':', 1)
-    fields = [
-        Field(t.strip(), n.strip())
-        for t, n in [
-            f.strip().split(" ", 1) for f in f_string.strip().split(",")
-        ]
-    ]
-    return Type(name.strip(), f_string.strip(), fields)
+    @property
+    def java_param_list(self):
+        return ", ".join(field.java_def for field in self.fields)
+
+
+def ws_split(
+    input: str, sep: str | None = None, maxsplit: SupportsIndex = -1
+) -> list[str]:
+    """The same as str.split(), but strips surrounding whitespace from all resulting elements."""
+    return [item.strip() for item in input.strip().split(sep, maxsplit)]
 
 
 def define_ast(output_dir: Path, name: str, types: list[str]):
-    env = Environment(loader = DictLoader({'expr': expr_template}))
-    gen = env.get_template('expr').render(
-        base_name=name,
-        types=[parse_rule(rule) for rule in types])
-
+    template = Template(EXPR_TEMPLATE)
     path = output_dir / f"{name}.java"
-    path.write_text(gen)
+    path.write_text(
+        template.render(base_name=name, types=[Type.from_rule(rule) for rule in types])
+    )
 
 
-def main(argv=sys.argv[1:]):
-    ap = ArgumentParser()
-    ap.add_argument("output_dir", type=Path)
-
-    args = ap.parse_args(argv)
-    if not (args.output_dir.is_dir() and args.output_dir.exists()):
-        raise Exception(f"{args.output_dir!r} is not a directory, or does not exist")
-
+@click.command()
+@click.argument(
+    "output_dir",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+)
+def main(output_dir: Path):
     define_ast(
-        args.output_dir,
+        output_dir,
         "Expr",
         [line.strip() for line in RULES.strip().splitlines()],
     )
