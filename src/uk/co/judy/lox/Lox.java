@@ -35,8 +35,11 @@ public class Lox {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
 
+        var out = System.out;
+        out.println("Welcome to lox!");
+
         for (;;) {
-            System.out.println("> ");
+            out.print("> ");
             String line = reader.readLine();
             if (line == null) break;
             run(line);
