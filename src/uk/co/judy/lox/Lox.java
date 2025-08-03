@@ -10,6 +10,7 @@ import java.util.List;
 
 public class Lox {
     private static final Interpreter interpreter = new Interpreter();
+//    private static final AstPrinter printer = new AstPrinter();
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
 

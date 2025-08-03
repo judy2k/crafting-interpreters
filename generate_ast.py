@@ -13,6 +13,7 @@ import click
 from jinja2 import Template
 
 EXPR_RULES = """
+    Assign   : Token name, Expr value
     Binary   : Expr left, Token operator, Expr right
     Grouping : Expr expression
     Literal  : Object value

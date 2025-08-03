@@ -1,11 +1,50 @@
 package uk.co.judy.lox;
 
 import java.io.IOException;
+import java.util.List;
 
-public class AstPrinter implements Expr.Visitor<String> {
+public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
-    String print(Expr expr) {
-        return expr.accept(this);
+    void print(List<Stmt> statements) {
+        try {
+            for (Stmt statement: statements) {
+                System.out.println(statement.accept(this));
+            }
+        } catch (RuntimeError error) {
+            Lox.runtimeError(error);
+        }
+    }
+
+    @Override
+    public String visitExpressionStmt(Stmt.Expression stmt) {
+        return parenthesize("expr", stmt.expression);
+    }
+
+    @Override
+    public String visitVarStmt(Stmt.Var stmt) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("(var").append(" ");
+        builder.append(stmt.name.lexeme).append(" ");
+        builder.append(stmt.initializer.accept(this));
+        builder.append(")");
+        return builder.toString();
+    }
+
+    @Override
+    public String visitPrintStmt(Stmt.Print stmt) {
+        return parenthesize("print", stmt.expression);
+    }
+
+    @Override
+    public String visitAssignExpr(Expr.Assign expr) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("(=").append(" ");
+        builder.append(expr.name.lexeme).append(" ");
+        builder.append(expr.value.accept(this));
+        builder.append(")");
+        return builder.toString();
     }
 
     @Override
@@ -48,12 +87,12 @@ public class AstPrinter implements Expr.Visitor<String> {
         return builder.toString();
     }
 
-    public static void main(String[] args) throws IOException {
-        Expr expression = new Expr.Binary(
-                new Expr.Unary(new Token(TokenType.MINUS, "-", null, 1),
-                new Expr.Literal(123)),
-            new Token(TokenType.STAR, "*", null, 1),
-                new Expr.Grouping(new Expr.Literal(45.67)));
-        System.out.println(new AstPrinter().print(expression));
-    }
+//    public static void main(String[] args) throws IOException {
+//        Expr expression = new Expr.Binary(
+//                new Expr.Unary(new Token(TokenType.MINUS, "-", null, 1),
+//                new Expr.Literal(123)),
+//            new Token(TokenType.STAR, "*", null, 1),
+//                new Expr.Grouping(new Expr.Literal(45.67)));
+//        new AstPrinter().print(expression);
+//    }
 }
