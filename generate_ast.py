@@ -22,6 +22,7 @@ EXPR_RULES = """
 """
 
 STMT_RULES = """
+    Block      : List<Stmt> statements
     Expression : Expr expression
     Var        : Token name, Expr initializer
     Print      : Expr expression
@@ -107,24 +108,19 @@ def define_ast(output_dir: Path, name: str, types: list[str]):
     )
 
 
+def prepare_rules(rules: str):
+    return [line.strip() for line in rules.strip().splitlines()]
+
+
 @click.command()
 @click.argument(
     "output_dir",
     type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
 )
 def main(output_dir: Path):
-    define_ast(
-        output_dir,
-        "Expr",
-        [line.strip() for line in EXPR_RULES.strip().splitlines()],
-    )
-
-    define_ast(
-        output_dir,
-        "Stmt",
-        [line.strip() for line in STMT_RULES.strip().splitlines()],
-    )
+    define_ast(output_dir, "Expr", prepare_rules(EXPR_RULES))
+    define_ast(output_dir, "Stmt", prepare_rules(STMT_RULES))
 
 
 if __name__ == "__main__":
-    main()
+    main()  # type: ignore
