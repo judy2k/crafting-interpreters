@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    private Environment environment = new Environment();
+    final Environment globals = new Environment();
+    private Environment environment = globals;
+    
     void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement: statements) {
