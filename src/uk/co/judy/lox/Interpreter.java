@@ -193,6 +193,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             if (text.endsWith(".0")) {
                 text = text.substring(0, text.length() - 2);
             }
+            return text;
         }
         return object.toString();
     }
