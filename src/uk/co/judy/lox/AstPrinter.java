@@ -3,7 +3,7 @@ package uk.co.judy.lox;
 import java.io.IOException;
 import java.util.List;
 
-public class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
+public abstract class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
     void print(List<Stmt> statements) {
         try {
