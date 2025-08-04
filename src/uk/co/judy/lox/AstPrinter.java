@@ -21,13 +21,12 @@ public abstract class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<S
 
     @Override
     public String visitVarStmt(Stmt.Var stmt) {
-        StringBuilder builder = new StringBuilder();
 
-        builder.append("(var").append(" ");
-        builder.append(stmt.name.lexeme).append(" ");
-        builder.append(stmt.initializer.accept(this));
-        builder.append(")");
-        return builder.toString();
+        String builder = "(var" + " " +
+                stmt.name.lexeme + " " +
+                stmt.initializer.accept(this) +
+                ")";
+        return builder;
     }
 
     @Override
@@ -37,13 +36,12 @@ public abstract class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<S
 
     @Override
     public String visitAssignExpr(Expr.Assign expr) {
-        StringBuilder builder = new StringBuilder();
 
-        builder.append("(=").append(" ");
-        builder.append(expr.name.lexeme).append(" ");
-        builder.append(expr.value.accept(this));
-        builder.append(")");
-        return builder.toString();
+        String builder = "(=" + " " +
+                expr.name.lexeme + " " +
+                expr.value.accept(this) +
+                ")";
+        return builder;
     }
 
     @Override
