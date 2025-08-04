@@ -6,10 +6,10 @@ import java.util.List;
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     final Environment globals = new Environment();
     private Environment environment = globals;
-    
+
     void interpret(List<Stmt> statements) {
         try {
-            for (Stmt statement: statements) {
+            for (Stmt statement : statements) {
                 execute(statement);
             }
         } catch (RuntimeError error) {
@@ -59,10 +59,10 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings.");
             case STAR:
                 checkNumberOperands(expr.operator, left, right);
-                return (double)left * (double) right;
+                return (double) left * (double) right;
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
-                return (double )left / (double) right;
+                return (double) left / (double) right;
         }
 
         throw new RuntimeException("This should be unreachable");
@@ -120,7 +120,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
                 return !isTruthy(right);
             case MINUS:
                 checkNumberOperand(expr.operator, right);
-                return -(double)right;
+                return -(double) right;
         }
         return null;
     }
@@ -135,11 +135,13 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         executeBlock(stmt.statements, new Environment(environment));
         return null;
     }
+
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         evaluate(stmt.expression);
         return null;
     }
+
     @Override
     public Void visitIfStmt(Stmt.If stmt) {
         if (isTruthy(evaluate(stmt.condition))) {
@@ -198,7 +200,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     private boolean isTruthy(Object object) {
         if (object == null) return false;
-        if (object instanceof Boolean) return (boolean)object;
+        if (object instanceof Boolean) return (boolean) object;
         return true;
     }
 

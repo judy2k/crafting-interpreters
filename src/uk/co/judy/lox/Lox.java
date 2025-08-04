@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Lox {
     private static final Interpreter interpreter = new Interpreter();
-//    private static final AstPrinter printer = new AstPrinter();
+    //    private static final AstPrinter printer = new AstPrinter();
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
 
@@ -39,7 +39,7 @@ public class Lox {
         var out = System.out;
         out.println("Welcome to lox!");
 
-        for (;;) {
+        for (; ; ) {
             out.print("> ");
             String line = reader.readLine();
             if (line == null) break;

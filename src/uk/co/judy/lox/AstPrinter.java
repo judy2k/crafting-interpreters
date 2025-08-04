@@ -1,13 +1,12 @@
 package uk.co.judy.lox;
 
-import java.io.IOException;
 import java.util.List;
 
 public abstract class AstPrinter implements Expr.Visitor<String>, Stmt.Visitor<String> {
 
     void print(List<Stmt> statements) {
         try {
-            for (Stmt statement: statements) {
+            for (Stmt statement : statements) {
                 System.out.println(statement.accept(this));
             }
         } catch (RuntimeError error) {

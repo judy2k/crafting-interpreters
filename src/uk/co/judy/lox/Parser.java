@@ -3,11 +3,10 @@ package uk.co.judy.lox;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import static uk.co.judy.lox.TokenType.*;
 
 public class Parser {
-    private static class ParseError extends RuntimeException {};
-
     private final List<Token> tokens;
     private int current = 0;
 
@@ -41,7 +40,7 @@ public class Parser {
         if (match(EQUAL)) {
             initializer = expression();
         }
-        consume (SEMICOLON, "Expect ';' after variable declaration.");
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
         return new Stmt.Var(name, initializer);
     }
 
@@ -151,7 +150,7 @@ public class Parser {
             Token equals = previous();
             Expr value = assignment();
             if (expr instanceof Expr.Variable) {
-                Token name = ((Expr.Variable)expr).name;
+                Token name = ((Expr.Variable) expr).name;
                 return new Expr.Assign(name, value);
             }
 
@@ -277,7 +276,7 @@ public class Parser {
     }
 
     private boolean match(TokenType... types) {
-        for (TokenType type: types) {
+        for (TokenType type : types) {
             if (check(type)) {
                 advance();
                 return true;
@@ -302,8 +301,14 @@ public class Parser {
             if (previous().type == SEMICOLON) return;
 
             switch (peek().type) {
-                case CLASS: case FOR: case FUN: case IF: case PRINT:
-                case RETURN: case VAR: case WHILE:
+                case CLASS:
+                case FOR:
+                case FUN:
+                case IF:
+                case PRINT:
+                case RETURN:
+                case VAR:
+                case WHILE:
                     return;
             }
 
@@ -331,6 +336,9 @@ public class Parser {
 
     private Token previous() {
         return tokens.get(current - 1);
+    }
+
+    private static class ParseError extends RuntimeException {
     }
 
 }
